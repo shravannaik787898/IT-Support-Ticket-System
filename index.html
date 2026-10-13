@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Day 25 - IT Support Ticket System</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f8f9fa; padding: 20px; }
+        .box { max-width: 500px; background: white; padding: 20px; margin: auto; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        input, select, textarea { width: 100%; padding: 8px; margin: 8px 0; box-sizing: border-box; }
+        button { background: #007bff; color: white; border: none; padding: 10px; width: 100%; cursor: pointer; }
+        .ticket-list { margin-top: 20px; }
+        .ticket { background: #e9ecef; padding: 10px; margin-top: 5px; border-left: 4px solid #007bff; }
+    </style>
+</head>
+<body>
+<div class="box">
+    <h2>Submit Support Ticket</h2>
+    <input type="text" id="issueTitle" placeholder="Issue Title">
+    <select id="priority">
+        <option value="Low">Low Priority</option>
+        <option value="Medium">Medium Priority</option>
+        <option value="High">High Priority</option>
+    </select>
+    <textarea id="issueDesc" placeholder="Describe the issue..."></textarea>
+    <button onclick="createTicket()">Submit Ticket</button>
+
+    <div class="ticket-list" id="ticketList"></div>
+</div>
+
+<script>
+function createTicket() {
+    let title = document.getElementById('issueTitle').value;
+    let priority = document.getElementById('priority').value;
+    let desc = document.getElementById('issueDesc').value;
+
+    if(!title || !desc) { alert("Please fill all fields"); return; }
+
+    let ticketHTML = `<div class="ticket"><strong>${title}</strong> (${priority})<br><small>${desc}</small></div>`;
+    document.getElementById('ticketList').innerHTML += ticketHTML;
+    document.getElementById('issueTitle').value = '';
+    document.getElementById('issueDesc').value = '';
+}
+</script>
+</body>
+</html>

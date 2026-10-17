@@ -1,45 +1,506 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Day 25 - IT Support Ticket System</title>
-    <style>
-        body { font-family: Arial, sans-serif; background: #f8f9fa; padding: 20px; }
-        .box { max-width: 500px; background: white; padding: 20px; margin: auto; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        input, select, textarea { width: 100%; padding: 8px; margin: 8px 0; box-sizing: border-box; }
-        button { background: #007bff; color: white; border: none; padding: 10px; width: 100%; cursor: pointer; }
-        .ticket-list { margin-top: 20px; }
-        .ticket { background: #e9ecef; padding: 10px; margin-top: 5px; border-left: 4px solid #007bff; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TechDesk - IT Support Dashboard</title>
+  <!-- Lucide Icons for UI Elements -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    :root {
+      --bg-color: #0b0f19;
+      --card-bg: #111827;
+      --card-border: #1f293d;
+      --input-bg: #0b0f19;
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      --accent-purple: #6366f1;
+      --accent-purple-hover: #4f46e5;
+      --color-open: #3b82f6;
+      --color-progress: #f59e0b;
+      --color-resolved: #10b981;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      display: flex;
+      justify-content: center;
+      padding: 2rem 1rem;
+    }
+
+    .container {
+      max-width: 1000px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 3rem;
+    }
+
+    /* Navbar */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 1rem;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 700;
+      font-size: 1.25rem;
+      color: var(--text-main);
+    }
+
+    .logo-icon {
+      background: var(--accent-purple);
+      color: white;
+      padding: 4px 6px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+    }
+
+    nav {
+      display: flex;
+      gap: 1rem;
+      background-color: transparent;
+      padding: 4px;
+      border-radius: 8px;
+    }
+
+    nav a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      padding: 0.4rem 0.8rem;
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+
+    nav a.active {
+      background-color: #1e293b;
+      color: var(--text-main);
+    }
+
+    nav a:hover:not(.active) {
+      color: var(--text-main);
+    }
+
+    .status-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.8rem;
+      color: var(--color-resolved);
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      background-color: var(--color-resolved);
+      border-radius: 50%;
+    }
+
+    /* Hero Section */
+    .hero {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 2rem;
+    }
+
+    .hero-content {
+      max-width: 550px;
+    }
+
+    .hero-title {
+      font-size: 2.8rem;
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 1rem;
+    }
+
+    .hero-title span {
+      color: #a5b4fc;
+    }
+
+    .hero-subtitle {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      line-height: 1.5;
+      margin-bottom: 1.5rem;
+    }
+
+    .btn-primary {
+      background-color: var(--accent-purple);
+      color: white;
+      border: none;
+      padding: 0.65rem 1.25rem;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: background 0.2s;
+    }
+
+    .btn-primary:hover {
+      background-color: var(--accent-purple-hover);
+    }
+
+    .help-card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      min-width: 300px;
+    }
+
+    .help-icon {
+      background-color: #1e1b4b;
+      color: #818cf8;
+      padding: 0.75rem;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .help-text h4 {
+      font-size: 0.95rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .help-text p {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    /* Section Headers */
+    .section-label {
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.05em;
+      color: var(--accent-purple);
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 1rem;
+    }
+
+    .section-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    .last-updated {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    /* Overview Cards */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+
+    .summary-card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .card-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .icon-total { background-color: #312e81; color: #a5b4fc; }
+    .icon-open { background-color: #1e3a8a; color: #93c5fd; }
+    .icon-progress { background-color: #451a03; color: #fcd34d; }
+    .icon-resolved { background-color: #064e3b; color: #6ee7b7; }
+
+    .card-info .label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-bottom: 0.25rem;
+    }
+
+    .card-info .value {
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    .value-total { color: var(--text-main); }
+    .value-open { color: var(--color-open); }
+    .value-progress { color: var(--color-progress); }
+    .value-resolved { color: var(--color-resolved); }
+
+    /* Form Container */
+    .form-card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 1.5rem;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .form-group.full-width {
+      grid-column: span 2;
+    }
+
+    label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    label .required {
+      color: #ef4444;
+    }
+
+    input, select, textarea {
+      background-color: var(--input-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 0.65rem 0.85rem;
+      color: var(--text-main);
+      font-size: 0.85rem;
+      outline: none;
+      width: 100%;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--accent-purple);
+    }
+
+    input::placeholder, textarea::placeholder {
+      color: #4b5563;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    /* Responsive adjustment */
+    @media (max-width: 768px) {
+      .hero {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+      .form-group.full-width {
+        grid-column: span 1;
+      }
+    }
+  </style>
 </head>
 <body>
-<div class="box">
-    <h2>Submit Support Ticket</h2>
-    <input type="text" id="issueTitle" placeholder="Issue Title">
-    <select id="priority">
-        <option value="Low">Low Priority</option>
-        <option value="Medium">Medium Priority</option>
-        <option value="High">High Priority</option>
-    </select>
-    <textarea id="issueDesc" placeholder="Describe the issue..."></textarea>
-    <button onclick="createTicket()">Submit Ticket</button>
 
-    <div class="ticket-list" id="ticketList"></div>
-</div>
+  <div class="container">
+    
+    <!-- Top Navigation -->
+    <header>
+      <div class="logo">
+        <span class="logo-icon">IT</span>
+        <span>TechDesk</span>
+      </div>
+      <nav>
+        <a href="#" class="active">Dashboard</a>
+        <a href="#">Raise Ticket</a>
+        <a href="#">Tickets</a>
+        <a href="#">Support</a>
+      </nav>
+      <div class="status-badge">
+        <span class="status-dot"></span>
+        <span>Support Online</span>
+      </div>
+    </header>
 
-<script>
-function createTicket() {
-    let title = document.getElementById('issueTitle').value;
-    let priority = document.getElementById('priority').value;
-    let desc = document.getElementById('issueDesc').value;
+    <!-- Hero Header -->
+    <section class="hero">
+      <div class="hero-content">
+        <h1 class="hero-title">How can we <span>help you?</span></h1>
+        <p class="hero-subtitle">
+          Submit and track your IT support requests from one simple dashboard. Our support team is ready to help.
+        </p>
+        <button class="btn-primary">
+          <i data-lucide="plus" style="width: 16px; height: 16px;"></i> Raise a Ticket
+        </button>
+      </div>
+      <div class="help-card">
+        <div class="help-icon">
+          <i data-lucide="wrench" style="width: 20px; height: 20px;"></i>
+        </div>
+        <div class="help-text">
+          <h4>Need technical help?</h4>
+          <p>Our IT team is available to assist you.</p>
+        </div>
+      </div>
+    </section>
 
-    if(!title || !desc) { alert("Please fill all fields"); return; }
+    <!-- Ticket Summary Section -->
+    <section>
+      <div class="section-label">OVERVIEW</div>
+      <div class="section-header">
+        <h2 class="section-title">Ticket Summary</h2>
+        <span class="last-updated">Last updated: Today</span>
+      </div>
 
-    let ticketHTML = `<div class="ticket"><strong>${title}</strong> (${priority})<br><small>${desc}</small></div>`;
-    document.getElementById('ticketList').innerHTML += ticketHTML;
-    document.getElementById('issueTitle').value = '';
-    document.getElementById('issueDesc').value = '';
-}
-</script>
+      <div class="summary-grid">
+        <!-- Total -->
+        <div class="summary-card">
+          <div class="card-icon icon-total">
+            <i data-lucide="layout" style="width: 18px; height: 18px;"></i>
+          </div>
+          <div class="card-info">
+            <div class="label">Total Tickets</div>
+            <div class="value value-total">06</div>
+          </div>
+        </div>
+        
+        <!-- Open -->
+        <div class="summary-card">
+          <div class="card-icon icon-open">
+            <i data-lucide="circle" style="width: 18px; height: 18px;"></i>
+          </div>
+          <div class="card-info">
+            <div class="label">Open</div>
+            <div class="value value-open">02</div>
+          </div>
+        </div>
+
+        <!-- In Progress -->
+        <div class="summary-card">
+          <div class="card-icon icon-progress">
+            <i data-lucide="clock" style="width: 18px; height: 18px;"></i>
+          </div>
+          <div class="card-info">
+            <div class="label">In Progress</div>
+            <div class="value value-progress">02</div>
+          </div>
+        </div>
+
+        <!-- Resolved -->
+        <div class="summary-card">
+          <div class="card-icon icon-resolved">
+            <i data-lucide="check-circle" style="width: 18px; height: 18px;"></i>
+          </div>
+          <div class="card-info">
+            <div class="label">Resolved</div>
+            <div class="value value-resolved">02</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Support Request Form Section -->
+    <section>
+      <div class="section-label">SUPPORT REQUEST</div>
+      <div class="section-header">
+        <h2 class="section-title">Raise a Ticket</h2>
+        <span class="last-updated">Fill in the details below to contact IT support.</span>
+      </div>
+
+      <div class="form-card">
+        <form onsubmit="event.preventDefault();">
+          <div class="form-grid">
+            
+            <div class="form-group">
+              <label>Name <span class="required">*</span></label>
+              <input type="text" placeholder="Enter your full name" required>
+            </div>
+
+            <div class="form-group">
+              <label>Email <span class="required">*</span></label>
+              <input type="email" placeholder="you@company.com" required>
+            </div>
+
+            <div class="form-group">
+              <label>Issue Category <span class="required">*</span></label>
+              <select required>
+                <option value="" disabled selected>Select category</option>
+                <option value="hardware">Hardware</option>
+                <option value="software">Software</option>
+                <option value="network">Network / Wi-Fi</option>
+                <option value="access">Access & Passwords</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Priority <span class="required">*</span></label>
+              <select required>
+                <option value="" disabled selected>Select priority</option>
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+                <option value="urgent">Urgent</option>
+              </select>
+            </div>
+
+            <div class="form-group full-width">
+              <label>Subject <span class="required">*</span></label>
+              <input type="text" placeholder="Briefly describe your issue" required>
+            </div>
+
+            <div class="form-group full-width">
+              <label>Description <span class="required">*</span></label>
+              <textarea placeholder="Explain the problem in detail..." required></textarea>
+            </div>
+
+          </div>
+        </form>
+      </div>
+    </section>
+
+  </div>
+
+  <script>
+    // Initialize icons
+    lucide.createIcons();
+  </script>
 </body>
 </html>
